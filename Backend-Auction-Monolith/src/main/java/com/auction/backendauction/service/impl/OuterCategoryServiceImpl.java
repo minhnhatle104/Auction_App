@@ -2,6 +2,8 @@ package com.auction.backendauction.service.impl;
 
 import com.auction.backendauction.dto.OuterCategoryDTO;
 import com.auction.backendauction.entity.OuterCategory;
+import com.auction.backendauction.exception.impl.OuterCategoryAlreadyExists;
+import com.auction.backendauction.exception.impl.ResourceNotFoundException;
 import com.auction.backendauction.mapper.OuterCategoryMapper;
 import com.auction.backendauction.repository.OuterCategoryRepository;
 import com.auction.backendauction.service.OuterCategoryService;
@@ -21,8 +23,8 @@ public class OuterCategoryServiceImpl implements OuterCategoryService {
     @Override
     public OuterCategoryDTO createOuterCategory(OuterCategoryDTO outerCategoryDTO) {
         Optional<OuterCategory> existedCategory = categoryRepository.findByName(outerCategoryDTO.getName());
-        if(existedCategory.isPresent()){
-            System.out.println("Category exists");
+        if (existedCategory.isPresent()) {
+            throw new OuterCategoryAlreadyExists("Outer category already exists");
         }
 
         OuterCategory category = OuterCategoryMapper.MAPPER.mapToEntity(outerCategoryDTO);
@@ -35,11 +37,9 @@ public class OuterCategoryServiceImpl implements OuterCategoryService {
 
     @Override
     public OuterCategoryDTO getCategoryById(String id) {
-        Optional<OuterCategory> existedCategory = categoryRepository.findById(id);
-        if(existedCategory.isEmpty()){
-           System.out.println("Category not existed");
-        }
-        OuterCategory category = existedCategory.get();
+        OuterCategory category = categoryRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Outer Category", "id", id)
+        );
         return OuterCategoryMapper.MAPPER.mapToDTO(category);
     }
 
@@ -53,11 +53,9 @@ public class OuterCategoryServiceImpl implements OuterCategoryService {
 
     @Override
     public OuterCategoryDTO updateCategory(OuterCategoryDTO category) {
-        Optional<OuterCategory> existedCategory = categoryRepository.findById(category.getId());
-        if(existedCategory.isEmpty()){
-            System.out.println("Category not existed");
-        }
-        OuterCategory outerCategory = existedCategory.get();
+        OuterCategory outerCategory = categoryRepository.findById(category.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Outer Category", "id", category.getId())
+        );
         outerCategory.setName(category.getName());
         categoryRepository.save(outerCategory);
 
@@ -66,9 +64,9 @@ public class OuterCategoryServiceImpl implements OuterCategoryService {
 
     @Override
     public void deleteOuterCategory(String id) {
-        Optional<OuterCategory> existedCategory = categoryRepository.findById(id);
-        if(existedCategory.isPresent()){
-            categoryRepository.delete(existedCategory.get());
-        }
+        OuterCategory existedCategory = categoryRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Outer Category", "id", id)
+        );
+        categoryRepository.delete(existedCategory);
     }
 }

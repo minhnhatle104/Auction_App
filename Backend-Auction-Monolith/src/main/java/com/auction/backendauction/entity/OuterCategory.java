@@ -17,8 +17,8 @@ import javax.persistence.*;
 public class OuterCategory {
 
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @GenericGenerator(name = "id", strategy = "com.auction.backendauction.utils.OuterCategoryGenerator")
+    @GeneratedValue(generator = "id")
     @Column(name = "id",unique = true)
     private String id;
 
