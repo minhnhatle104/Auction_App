@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "outer_category")
@@ -19,10 +21,19 @@ public class OuterCategory {
     @Id
     @GenericGenerator(name = "id", strategy = "com.auction.backendauction.utils.OuterCategoryGenerator")
     @GeneratedValue(generator = "id")
-    @Column(name = "id",unique = true)
+    @Column(name = "id", unique = true)
     private String id;
 
-    @Column(name = "name",unique = true,nullable = false)
+    @Column(name = "name", unique = true)
     private String name;
+
+    @OneToMany(mappedBy = "outerCategory",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.DETACH,
+                    CascadeType.MERGE,
+                    CascadeType.PERSIST,
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH})
+    private List<InnerCategory> innerCategories;
 
 }

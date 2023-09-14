@@ -1,18 +1,37 @@
 package com.auction.backendauction.mapper;
-
 import com.auction.backendauction.dto.OuterCategoryDTO;
 import com.auction.backendauction.entity.OuterCategory;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 
-@Mapper
-public interface OuterCategoryMapper {
+import java.util.stream.Collectors;
 
-    OuterCategoryMapper MAPPER = Mappers.getMapper(OuterCategoryMapper.class);
+@Component
+public class OuterCategoryMapper implements EntityMapper<OuterCategory, OuterCategoryDTO>{
 
-    OuterCategoryDTO mapToDTO(OuterCategory outerCategory);
+    @Override
+    public OuterCategory toEntity(OuterCategoryDTO outerCategoryDTO) {
+        OuterCategory outerCategory = new OuterCategory();
+        outerCategory.setId(outerCategoryDTO.getId());
+        outerCategory.setName(outerCategoryDTO.getName());
 
-    OuterCategory mapToEntity(OuterCategoryDTO outerCategoryDTO);
+        return outerCategory;
+    }
 
+    @Override
+    public OuterCategoryDTO toDTO(OuterCategory outerCategory) {
+        OuterCategoryDTO outerCategoryDTO = new OuterCategoryDTO();
+        InnerCategoryMapper innerCategoryMapper = new InnerCategoryMapper();
+
+        outerCategoryDTO.setId(outerCategory.getId());
+        outerCategoryDTO.setName(outerCategory.getName());
+        outerCategoryDTO.setInnerCategories(
+                outerCategory
+                        .getInnerCategories()
+                        .stream()
+                        .map(innerCategoryMapper::toDTO)
+                        .collect(Collectors.toList())
+        );
+
+        return outerCategoryDTO;
+    }
 }

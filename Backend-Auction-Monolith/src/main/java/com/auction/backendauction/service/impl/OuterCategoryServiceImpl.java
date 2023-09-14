@@ -8,6 +8,7 @@ import com.auction.backendauction.mapper.OuterCategoryMapper;
 import com.auction.backendauction.repository.OuterCategoryRepository;
 import com.auction.backendauction.service.OuterCategoryService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +16,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class OuterCategoryServiceImpl implements OuterCategoryService {
 
+    @Autowired
     private OuterCategoryRepository categoryRepository;
+
+    @Autowired
+    private OuterCategoryMapper outerCategoryMapper;
 
     @Override
     public OuterCategoryDTO createOuterCategory(OuterCategoryDTO outerCategoryDTO) {
@@ -27,10 +31,10 @@ public class OuterCategoryServiceImpl implements OuterCategoryService {
             throw new OuterCategoryAlreadyExists("Outer category already exists");
         }
 
-        OuterCategory category = OuterCategoryMapper.MAPPER.mapToEntity(outerCategoryDTO);
+        OuterCategory category = outerCategoryMapper.toEntity(outerCategoryDTO);
         OuterCategory savedCategory = categoryRepository.save(category);
 
-        OuterCategoryDTO savedCategoryDTO = OuterCategoryMapper.MAPPER.mapToDTO(savedCategory);
+        OuterCategoryDTO savedCategoryDTO = outerCategoryMapper.toDTO(savedCategory);
 
         return savedCategoryDTO;
     }
@@ -40,14 +44,14 @@ public class OuterCategoryServiceImpl implements OuterCategoryService {
         OuterCategory category = categoryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Outer Category", "id", id)
         );
-        return OuterCategoryMapper.MAPPER.mapToDTO(category);
+        return outerCategoryMapper.toDTO(category);
     }
 
     @Override
     public List<OuterCategoryDTO> getCategories() {
         List<OuterCategory> categories = categoryRepository.findAll();
 
-        return categories.stream().map(OuterCategoryMapper.MAPPER::mapToDTO)
+        return categories.stream().map(outerCategoryMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -59,7 +63,7 @@ public class OuterCategoryServiceImpl implements OuterCategoryService {
         outerCategory.setName(category.getName());
         categoryRepository.save(outerCategory);
 
-        return OuterCategoryMapper.MAPPER.mapToDTO(outerCategory);
+        return outerCategoryMapper.toDTO(outerCategory);
     }
 
     @Override
